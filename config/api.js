@@ -72,9 +72,8 @@ class Api
 
 		let hourPerHourOfCurrentDay = [];
 		for (i; i < 24; i++) {
-			if (dayjs.tz(data.properties.timeseries[i].time).date() === today) {
+			// if (dayjs.tz(data.properties.timeseries[i].time).date() === today)
 				hourPerHourOfCurrentDay.push({"hour" : dayjs.tz(data.properties.timeseries[i].time).hour(), "data" : data.properties.timeseries[i].data});
-			}
 		}
 
 		return hourPerHourOfCurrentDay;

@@ -1,5 +1,5 @@
 {% include 'pages/header.twig' %}
-
+<h5 class="ui centered header">Latitude {{ city.latitude }} - Longitude {{ city.longitude }}</h5>
 <div class="ui container main-slider-container">
 	<h2 class="ui centered header">
 		Today's forecast
@@ -21,7 +21,7 @@
 			</div>
 		{% endfor %}
 	</div>
-</div>
+</div><br>
 <div class="ui main container">
 	<div class="ui three column doubling stackable grid container">
 		{% for i in range(0, 5) %}

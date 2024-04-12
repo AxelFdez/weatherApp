@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "author": "axelFernandez",
   "license": "ISC",
@@ -17,7 +17,6 @@
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.0",
     "sqlite3": "^5.1.7",
-    "twig": "^1.17.1",
-    "validator": "^13.11.0"
+    "twig": "^1.17.1"
   }
 }

@@ -1,4 +1,4 @@
-const { isAlpha } = require('validator');
+const { cityValidator } = require('./utils');
 
 function serverError(err, req, res, next) {
   console.error(err.stack);
@@ -12,7 +12,7 @@ function notFound(req, res, next) {
 function inputError(req, res, next) {
 	latConverted = parseFloat(req.body.latitude);
 	lonConverted = parseFloat(req.body.longitude);
-	if (req.body.city === 'undefined' || req.body.city === '' || !isAlpha(req.body.city)) {
+	if (req.body.city === 'undefined' || req.body.city === '' || !cityValidator(req.body.city)) {
 		req.session.city = '';
 		req.flash('error', 'Please enter a city name');
 		return 1;

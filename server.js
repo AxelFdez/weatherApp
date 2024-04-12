@@ -2,7 +2,7 @@ let express = require('express');
 let app = express();
 let session = require('express-session');
 let errorHandler = require('./utils/errorsHandler');
-let capitalizeFirstLetter = require('./utils/utils');
+let { capitalizeFirstLetter } = require('./utils/utils');
 
 //template engine
 app.set('view engine', 'twig');
@@ -51,12 +51,18 @@ app.post('/', (req, res) => {
 	city.getCityFromDB(req.session.city).then(data => {
 		city.update(req.session.city, req.session.longitude, req.session.latitude);
 		req.flash('success', req.session.city + ' has been updated');
+		req.session.city = "";
+		req.session.longitude = "";
+		req.session.latitude = "";
 		res.redirect('/');
 		return;})
 	.catch(e => {
 		try {
 			city.create(req.session.city, req.session.longitude, req.session.latitude);
 			req.flash('success', req.session.city + ' has been saved');
+			req.session.city = "";
+			req.session.longitude = "";
+			req.session.latitude = "";
 		}
 		catch {
 			req.flash('error', "database error : city not saved");
