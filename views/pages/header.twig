@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Weather App</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/assets/semantic/semantic.min.css">
+		<link rel="stylesheet" href="/assets/style.css">
+		 <script
+					src="https://code.jquery.com/jquery-3.1.1.min.js"
+					integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+					crossorigin="anonymous"></script>
+		 <script src="/assets/semantic/semantic.min.js"></script>
+	</head>
+	<body>
+		<div class="ui inverted menu">
+			<div class="ui container flex-container">
+				<a href="/" class="ui header item small">Home</a>
+				<div class="ui nice search selection dropdown" style="margin:10px;">
+					<input type="hidden" name="cities">
+					<div class="default text">Search City</div>
+					<div id="searchCities" class="menu">
+						{% for city in cities %}
+							<a href="/{{ city }}" class="item">{{ city }}</a>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>

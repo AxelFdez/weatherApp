@@ -1,0 +1,36 @@
+{% include 'pages/header.twig' %}
+
+<div class="ui main container">
+	<form class="ui big form form-container" action="/" method="post">
+		<div class="ui large header">Add a new city</div>
+		{% if (flash) %}
+			{% if (flash.success) %}
+				<div class="ui positive message">
+					{{flash.success}}
+				</div>
+			{% endif %}
+			{% if (flash.error) %}
+				<div class="ui negative message">
+					{{flash.error}}
+				</div>
+			{% endif %}
+		{% endif %}
+		<div class="fields fields-container">
+			<div class="field">
+				<input type="text" value="{{ city }}" placeholder="City" name="city" maxlength="18">
+			</div>
+			<div class="field">
+				<input type="text" value="{{ latitude }}" placeholder="Latitude" name="latitude" maxlength="10">
+			</div>
+			<div class="field">
+				<input type="text" value="{{ longitude }}" placeholder="Longitude" name="longitude" maxlength="10">
+			</div>
+		</div>
+			<button class="ui large primary button" style="margin-top:15px" type="submit">
+				Add City
+			</button>
+	</form>
+</div>
+<script>$('.ui.dropdown').dropdown();</script>
+</body>
+</html>

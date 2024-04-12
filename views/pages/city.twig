@@ -1,0 +1,57 @@
+{% include 'pages/header.twig' %}
+
+<div class="ui container main-slider-container">
+	<h2 class="ui centered header">
+		Today's forecast
+	</h2>
+	<div class="slider-container">
+		{% for i in range (0,cityData.hoursData|length - 1) %}
+			<div class="slider-card">
+				<div class="ui card">
+					<div class="image">
+						<img src="/assets/weatherIcons/weather/png/{{ cityData.hoursData[i].data.next_1_hours.summary.symbol_code }}.png" alt="Weather icon">
+					</div>
+					<div class="content">
+						<div class="header">{{ cityData.hoursData[i].hour }}h</div>
+						<div class="meta">
+							<span class="date">{{ cityData.hoursData[i].data.instant.details.air_temperature }}°C</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+</div>
+<div class="ui main container">
+	<div class="ui three column doubling stackable grid container">
+		{% for i in range(0, 5) %}
+			<div class="column">
+				<div class="ui doubling stackable card">
+					<h2 class="ui centered header">{{ i == 0 ? "Today" : cityData.daysData[i].day }}</h2>
+					<div class="content">
+						<div class="ui two column centered grid">
+							<div class="column">
+								<h2 class="ui center aligned header" style="overflow: hidden; text-overflow: ellipsis;">{{ city.name }}</h2>
+								<p class="ui center aligned header" style="padding-top:1px;">{{cityData.daysData[i].data.instant.details.air_temperature}}°</p>
+							</div>
+							<div class="column">
+								<div class="image-container">
+									<img class="ui medium image" style="padding-right:15px; padding-top:10px;" src="/assets/weatherIcons/weather/png/{{i == 0 ? cityData.daysData[i].data.next_1_hours.summary.symbol_code : cityData.daysData[i].data.next_6_hours.summary.symbol_code}}.png">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="ui segment">
+						<h4 class="center aligned description">Humidity :
+							{{cityData.daysData[i].data.instant.details.relative_humidity}}%</h4>
+						<h4 class="center aligned description">Wind :
+							{{cityData.daysData[i].data.instant.details.wind_speed}}m/s</h4>
+						<h4 class="center aligned description">Precipitation :
+							{{i == 0 ? cityData.daysData[i].data.next_1_hours.details.precipitation_amount : cityData.daysData[i].data.next_6_hours.details.precipitation_amount}}mm</h4>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+</div>
+ <script> $('.ui.dropdown').dropdown();</script></body></html>

@@ -1,0 +1,5 @@
+{
+	"ext": "js, json, twig",
+	"ignore": ["node_modules/"],
+	"verbose": true
+  }
