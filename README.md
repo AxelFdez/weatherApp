@@ -30,7 +30,7 @@ SQLite is used as the database system to store information about the added citie
 1. **Install Dependencies:** Make sure you have Node.js installed on your machine.
 2. **Clone the Repository:** Clone this repository to your local machine using the following command:
 ```shell
-   git clone <repository_url>
+   git clone https://github.com/AxelFdez/weatherApp.git
 ```
 3. **Install project dependencies:**
 ```shell
