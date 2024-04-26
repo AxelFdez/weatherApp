@@ -13,12 +13,10 @@ This web application allows users to track the current day's weather for differe
 
 ## Using the API
 
-This application uses the Meteorologisk Institutt API to retrieve weather data. You can find the API documentation at the following links:
-
-Main API Documentation
-Location Forecast API Documentation
-WeatherIcons GitHub Repository
-
+This application uses the [Meteorologisk Institutt API](https://www.met.no/en) to retrieve weather data. You can find the API documentation at the following links:
+- [Main API Documentation](https://api.met.no/weatherapi/documentation)
+- [Location Forecast API Documentation](https://api.met.no/weatherapi/locationforecast/2.0/documentation)
+- [WeatherIcons GitHub Repository](https://github.com/metno/weathericons)
 
 ## Database
 
