@@ -3,6 +3,7 @@ let app = express();
 let session = require('express-session');
 let errorHandler = require('./utils/errorsHandler');
 let { capitalizeFirstLetter } = require('./utils/utils');
+const connectBdd = require('./config/mongoDB');
 
 //template engine
 app.set('view engine', 'twig');
@@ -26,8 +27,8 @@ app.use(require('./middlewares/fieldPersist'));
 //routes
 app.get('/', (req, res) => {
 	let city = require('./models/city');
-	city.getAllCityNames().then(data => {
-		req.session.cities = data;
+	city.MongodbGetAllCityNames().then(data => {
+		req.session.city = data;
 		res.render('pages/index', { cities: data });
 	}).catch(e => {
 		req.flash('error', e.message);
@@ -48,8 +49,8 @@ app.post('/', (req, res) => {
 		return;
 	}
 	let city = require('./models/city');
-	city.getCityFromDB(req.session.city).then(data => {
-		city.update(req.session.city, req.session.longitude, req.session.latitude);
+	city.MongodbGetCityFromDB(req.session.city).then(data => {
+		city.MongodbCityUpdate(req.session.city, req.session.longitude, req.session.latitude);
 		req.flash('success', req.session.city + ' has been updated');
 		req.session.city = "";
 		req.session.longitude = "";
@@ -58,7 +59,7 @@ app.post('/', (req, res) => {
 		return;})
 	.catch(e => {
 		try {
-			city.create(req.session.city, req.session.longitude, req.session.latitude);
+			city.MongodbCityCreate(req.session.city, req.session.longitude, req.session.latitude);
 			req.flash('success', req.session.city + ' has been saved');
 			req.session.city = "";
 			req.session.longitude = "";
@@ -69,40 +70,72 @@ app.post('/', (req, res) => {
 		}
 		res.redirect('/');
 	});
-})
+});
 
 app.get('/:city', (req, res) => {
 	let city = require('./models/city');
-	if (!req.session.cities) {
-		city.getAllCityNames().then(data => {
-			req.session.cities = data;
+	if (!req.session.city) {
+		city.MongodbGetAllCityNames().then(data => {
+			req.session.city = data;
 		}).catch(e => {});
 	}
-	city.getCityFromDB(req.params.city.toLowerCase()).then(data => {
+	city.MongodbGetCityFromDB(req.params.city).then(data => {
 		let api = require('./config/api');
-		let cachedData = api.getCachedData(data.name);
-		if (cachedData != undefined) {
-			// console.log("Data from cache");
-			res.render('pages/city', { cities: req.session.cities, city: data, cityData: cachedData });
-			return;
-		}
+		// console.log(data);
+		api.getCachedData(data.name).then(cachedData => {
+		// console.log(cachedData);
+		// if (cachedData && cachedData.hoursData) {
+		// 	res.render('pages/city', { cities: req.session.city, city: data, cityData: cachedData });
+		// 	return;
+		// }
+		// console.log("Data from API");
 		api.getData(data.longitude, data.latitude).then(dataFromApi => {
 			if (dataFromApi == undefined){
 				req.flash('error', "Api error : not available");
 				res.redirect('/');
 				return;
 			}
-			// console.log("Data from API");
 			let daysData = api.getDaysData(dataFromApi);
 			let hoursData = api.getHoursData(dataFromApi);
 			api.cacheData(data.name, hoursData, daysData, new Date());
-			res.render('pages/city', { cities: req.session.cities, city : data ,cityData: {hoursData : hoursData, daysData : daysData} });
-			});
+			res.render('pages/city', { cities: req.session.city, city : data ,cityData: {hoursData : hoursData, daysData : daysData} });
+		});
+	});
 		}).catch(e => {
 			req.flash('error', e.message);
 			res.redirect('/');
 		});
-})
+});
+
+app.get('/yesterday/:city', (req, res) => {
+	try {
+	let city = require('./models/city');
+	if (!req.session.city) {
+		city.MongodbGetAllCityNames().then(data => {
+			req.session.city = data;
+		}).catch(e => {});
+	}
+	// console.log(req.params.city);
+	city.MongodbGetCityFromDB(req.params.city).then(data => {
+		let api = require('./config/api');
+		// console.log(data);
+		api.getYesterdayData(data.name).then(yesterdayData => {
+			// console.log(yesterdayData);
+			if (!yesterdayData) {
+				req.flash('error', "No data available for yesterday");
+				res.redirect('/');
+				return;
+			}
+			// console.log(yesterdayData);
+			// res.sendStatus(200);
+			res.render('pages/yesterday', { cities: req.session.city, city : data ,yesterdayData: yesterdayData });
+		});
+	});
+	} catch (e) {
+		console.log(e);
+	}
+});
+
 
 //start server
 app.listen(8080, () => {

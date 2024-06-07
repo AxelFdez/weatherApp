@@ -1,36 +1,10 @@
 {% include 'pages/header.twig' %}
-<h5 class="ui centered header">Latitude {{ city.latitude }} - Longitude {{ city.longitude }}</h5>
-<div class="ui center aligned segment">
-		<a class="ui primary button" href="yesterday/{{city.name}}">Yesterday Forecast</a>
-</div
-<div class="ui container main-slider-container">
-	<h2 class="ui centered header">
-		Today's forecast
-	</h2>
-	<div class="slider-container">
-		{% for i in range (0,cityData.hoursData|length - 1) %}
-			<div class="slider-card">
-				<div class="ui card">
-					<div class="image">
-						<img src="/assets/weatherIcons/weather/png/{{ cityData.hoursData[i].data.next_1_hours.summary.symbol_code }}.png" alt="Weather icon">
-					</div>
-					<div class="content">
-						<div class="header">{{ cityData.hoursData[i].hour }}h</div>
-						<div class="meta">
-							<span class="date">{{ cityData.hoursData[i].data.instant.details.air_temperature }}°C</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		{% endfor %}
-	</div>
-</div><br>
 <div class="ui main container">
+	{% if YesterdayData.daysData %}
 	<div class="ui three column doubling stackable grid container">
-		{% for i in range(0, 5) %}
 			<div class="column">
 				<div class="ui doubling stackable card">
-					<h2 class="ui centered header">{{ i == 0 ? "Today" : cityData.daysData[i].day }}</h2>
+					<h2 class="ui centered header">{{ "Yesterday" }}</h2>
 					<div class="content">
 						<div class="ui two column centered grid">
 							<div class="column">
@@ -54,7 +28,9 @@
 					</div>
 				</div>
 			</div>
-		{% endfor %}
 	</div>
+	{% else %}
+	<p> Yesterday data of {{city.name}} not available </p>
+	{% endif %}
 </div>
  <script> $('.ui.dropdown').dropdown();</script></body></html>

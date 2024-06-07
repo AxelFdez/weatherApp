@@ -1,5 +1,7 @@
 let fetch = require('node-fetch');
 let dayjs = require('dayjs');
+const connectBdd = require('./mongoDB');
+const city = require('../models/cityMongodbSchema');
 
 dayjs.extend(require('dayjs/plugin/utc'));
 dayjs.extend(require('dayjs/plugin/timezone'));
@@ -9,7 +11,6 @@ dayjs.tz.setDefault("Europe/Paris");
 
 class Api
 {
-	static cachedData = {};
 	static cachedTime = 5;
 	static url = 'https://api.met.no/weatherapi/locationforecast/2.0/compact';
 	static option = { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' } };
@@ -72,26 +73,73 @@ class Api
 
 		let hourPerHourOfCurrentDay = [];
 		for (i; i < 24; i++) {
-			// if (dayjs.tz(data.properties.timeseries[i].time).date() === today)
 				hourPerHourOfCurrentDay.push({"hour" : dayjs.tz(data.properties.timeseries[i].time).hour(), "data" : data.properties.timeseries[i].data});
 		}
 
 		return hourPerHourOfCurrentDay;
 	}
 
-	static cacheData(city, HoursData, Daysdata, time) {
-		this.cachedData[city] = { data: {hoursData : HoursData, daysData : Daysdata} , lastApiCall: time };
+
+	static async cacheData(cityName, HoursData, Daysdata, time) {
+		await connectBdd();
+		const updatedCity = await city.findOneAndUpdate(
+			{ name: cityName },
+			{ $set: { 'forecastData': { hoursData: HoursData, daysData: Daysdata, lastApiCall: time } } },
+			{ new: true }
+		  );
+		  if (!updatedCity) {
+			throw new Error(`City '${cityName}' not found in the database`);
+		  }
+		await manageYesterdayData(updatedCity);
 	}
 
-	static getCachedData(city) {
-		if (this.cachedData[city] == undefined) {
+	static async getCachedData(cityName) {
+		await connectBdd();
+		const findCity = await city.findOne({ name: cityName });
+		// console.log(findCity);
+		if (!findCity || !findCity.forecastData) {
 			return undefined;
 		}
-		if (new Date() - this.cachedData[city].lastApiCall > this.cachedTime * 60 * 1000) {
+		if (dayjs(findCity.forecastData.lastApiCall).minute() - dayjs().minute() > this.cachedTime)
+		{
 			return undefined;
 		}
-		return this.cachedData[city].data;
+		return findCity.forecastData;
+	}
+
+	static async getYesterdayData(cityName) {
+		await connectBdd();
+		const findCity = await city.findOne({ name: cityName });
+		if (!findCity) {
+			return undefined;
+		}
+		return findCity.SavedDataDaysBefore.yesterday;
 	}
 }
+
+async function manageYesterdayData(cityFound) {
+	let now = dayjs(cityFound.forecastData.lastApiCall);
+	let yesterday = dayjs(cityFound.SavedDataDaysBefore.yesterday);
+	let nextYesterday = dayjs(cityFound.SavedDataDaysBefore.nextYesterday);
+	if (nextYesterday.time && nextYesterday.time.day() === now.day() + 1)
+	{
+		yesterday.time = nextYesterday.time;
+		yesterday.daysData = nextYesterday.daysData;
+		nextYesterday.time = now;
+		nextYesterday.daysData = cityFound.forecastData.daysData[0];
+	}
+	else if (yesterday.time && now.day() !== yesterday.time.day() + 1 ) {
+		yesterday.time = null;
+		yesterday.daysData = null;
+		nextYesterday.time = now.toDate()
+		nextYesterday.daysData = cityFound.forecastData.daysData[0];
+	}
+	else if (!nextYesterday.time) {
+		nextYesterday.time = now.toDate();
+		nextYesterday.daysData = cityFound.forecastData.daysData[0];
+	}
+		await city.updateOne({ _id: cityFound._id }, {$set: { 'SavedDataDaysBefore.nextYesterday.time': nextYesterday.time, 'SavedDataDaysBefore.nextYesterday.daysData': nextYesterday.daysData}});
+}
+
 
 module.exports = Api;
